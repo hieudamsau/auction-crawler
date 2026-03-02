@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: auction_db
+      POSTGRES_USER: auction
+      POSTGRES_PASSWORD: auction_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.7
+    environment:
+      MEILI_MASTER_KEY: auction_master_key
+    ports:
+      - "7700:7700"
+    volumes:
+      - msdata:/meili_data
+
+volumes:
+  pgdata:
+  msdata:
