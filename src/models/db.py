@@ -34,6 +34,7 @@ class AuctionItemDB(Base):
 
     asset_type: Mapped[str] = mapped_column(String(50), nullable=False, default="OTHER")
     asset_sub_type: Mapped[str | None] = mapped_column(String(100))
+    auction_category: Mapped[str | None] = mapped_column(String(50))  # Luật Đấu giá: 5 nhóm BĐS
 
     starting_price: Mapped[int | None] = mapped_column(BigInteger)
     deposit_amount: Mapped[int | None] = mapped_column(BigInteger)
@@ -92,6 +93,7 @@ class AuctionItemDB(Base):
         Index("uq_source_item", "source_id", "source_item_id", unique=True),
         Index("idx_fingerprint", "fingerprint", unique=True),
         Index("idx_asset_type", "asset_type"),
+        Index("idx_auction_category", "auction_category"),
         Index("idx_province", "province_code"),
         Index("idx_auction_date", "auction_datetime"),
         Index("idx_status", "status"),

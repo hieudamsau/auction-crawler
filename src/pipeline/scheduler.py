@@ -38,9 +38,10 @@ async def run_incremental_dgts():
                     parser=parser,
                     session=session,
                     raw_store=raw_store,
-                    crawl_detail=False,
+                    crawl_detail=True,
                     only_real_estate=True,
                     delay_between_pages=settings.crawl.delay_between_pages,
+                    delay_between_details=settings.crawl.delay_between_details,
                 )
                 await pipeline.run_incremental_crawl(max_pages=50)
 

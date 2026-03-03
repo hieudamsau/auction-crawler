@@ -32,6 +32,7 @@ class CrawlPipeline:
         crawl_detail: bool = False,
         only_real_estate: bool = True,
         delay_between_pages: float = 1.5,
+        delay_between_details: float | None = None,
     ):
         self._crawler = crawler
         self._parser = parser
@@ -40,6 +41,7 @@ class CrawlPipeline:
         self._crawl_detail = crawl_detail
         self._only_real_estate = only_real_estate
         self._delay = delay_between_pages
+        self._delay_details = delay_between_details if delay_between_details is not None else delay_between_pages
 
         self._classifier = AssetClassifier()
         self._geo = GeoNormalizer()
@@ -220,6 +222,7 @@ class CrawlPipeline:
         try:
             if self._crawl_detail:
                 raw_item = await self._crawler.crawl_detail(raw_item)
+                await asyncio.sleep(self._delay_details)
 
             normalized = self._parser.parse(raw_item)
 

@@ -27,6 +27,8 @@ class DgtsMojCrawler(BaseCrawler):
     MAIN_PAGE = "https://dgts.moj.gov.vn/thong-bao-cong-khai-viec-dau-gia.html"
     SEARCH_URL = "https://dgts.moj.gov.vn/portal/search/auction-notice"
     DETAIL_URL_TEMPLATE = "https://dgts.moj.gov.vn/chi-tiet-viec-dau-gia/{item_id}"
+    PROPERTY_INFO_URL = "https://dgts.moj.gov.vn/portal/propertyInfo"
+    VIEW_DETAIL_AUCTION_URL = "https://dgts.moj.gov.vn/portal/viewDetailAuctionInfo"
 
     REFERENCE_URLS = {
         "property_types": "https://dgts.moj.gov.vn/common/getListPropertyType",
@@ -134,6 +136,36 @@ class DgtsMojCrawler(BaseCrawler):
             )
 
     async def crawl_detail(self, raw_item: RawAuctionItem) -> RawAuctionItem:
+        """Fetch detail APIs (propertyInfo + viewDetailAuctionInfo) and merge into raw_fields."""
+        await self._ensure_browser_page()
+        item_id = raw_item.source_item_id
+
+        property_url = f"{self.PROPERTY_INFO_URL}?auctionInfoId={item_id}"
+        auction_url = f"{self.VIEW_DETAIL_AUCTION_URL}?auctionInfoId={item_id}"
+
+        def _fetch(url: str):
+            return self._page.evaluate(
+                f"""
+                async () => {{
+                    try {{
+                        const resp = await fetch("{url}");
+                        return await resp.json();
+                    }} catch (e) {{
+                        return {{ error: e.message }};
+                    }}
+                }}
+                """
+            )
+
+        property_data = await _fetch(property_url)
+        await asyncio.sleep(1.0)
+        auction_data = await _fetch(auction_url)
+
+        if isinstance(property_data, dict) and "error" not in property_data:
+            raw_item.raw_fields["detail_property"] = property_data
+        if isinstance(auction_data, dict) and "error" not in auction_data:
+            raw_item.raw_fields["detail_auction"] = auction_data
+
         return raw_item
 
     def has_next_page(self, current_page: int) -> bool:

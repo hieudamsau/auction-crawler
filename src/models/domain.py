@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional
 
-from src.models.enums import AssetType, AssetSubType, AuctionStatus, SourceId
+from src.models.enums import AssetType, AssetSubType, AuctionCategory, AuctionStatus, SourceId
 
 
 class RawAuctionItem(BaseModel):
@@ -32,6 +32,7 @@ class NormalizedAuctionItem(BaseModel):
 
     asset_type: AssetType = AssetType.OTHER
     asset_sub_type: Optional[AssetSubType] = None
+    auction_category: Optional[AuctionCategory] = None  # Phân loại theo Luật Đấu giá (5 nhóm BĐS)
 
     starting_price: Optional[int] = None
     deposit_amount: Optional[int] = None
